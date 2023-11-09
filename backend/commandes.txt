@@ -1,0 +1,12 @@
+express
+mariadb
+env
+cors
+bcrypt
+require crypto pour les uuid
+
+npm init
+npm install express --save
+npm install mariadb
+npm install dotenv
+npm install cors
