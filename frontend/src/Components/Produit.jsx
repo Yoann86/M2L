@@ -3,14 +3,14 @@ import axios from 'axios'
 import { Link } from 'react-router-dom';
 
 export default function Produit() {
-    const [produit, setProduit] = useState([]);
+    const [listeproduit, setListeProduit] = useState([]);
     const [affichage, setAffichage] = useState(false);
     const [categorie, setCategorie] = useState('');
 
     const recup = async ()=>{
-        await axios.get("http://localhost:3030/question")
+        await axios.get("http://localhost:3030/produit")
             .then( res => {
-                setProduit(res.data);
+                setListeProduit(res.data);
                 setAffichage(true);
             })
     }
@@ -21,9 +21,19 @@ export default function Produit() {
 
     return (
         <div>
-            
-            
-        
+            <h1>Liste des produits</h1>
+            { affichage ?
+                listeproduit.map(produit=>(
+                    <div key={produit.id}>
+                        <fieldset>
+                            <p>{produit.nom}</p>
+                            <p>{produit.description}</p>
+                            <p>{produit.prix} €</p>
+                        </fieldset>
+                    </div>
+                ))
+                : <p> chargement ...</p>   
+            }
         </div>
     )
 }

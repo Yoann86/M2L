@@ -3,7 +3,8 @@ import {useEffect,useState} from 'react';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
-export default function Connexion() {
+
+export default function Connexion({ updateNavState }) {
 	const [email, setEmail] = useState('');
 	const [mdp, setMdp] = useState('');
 	const [msg, setMsg] = useState('');
@@ -32,7 +33,10 @@ export default function Connexion() {
 				localStorage.setItem("email",rd.user["email"]);
 				localStorage.setItem("prenom",rd.user["prenom"]);
 				localStorage.setItem("nom",rd.user["nom"]);
+				localStorage.setItem("id",rd.user["id"]);
 				setMsg("Connexion effecutée");
+				updateNavState(true);
+				navigate("/produit");
 			}
 		} 
 		catch (error) {

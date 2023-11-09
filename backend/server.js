@@ -88,7 +88,8 @@ app.post('/connexion', async(req,res)=>{
             if (match) {
                 const user = {"email":rows[0]["email"],
                             "prenom":rows[0]["prenom"], 
-                            "nom":rows[0]["nom"]};
+                            "nom":rows[0]["nom"],
+                            "id":rows[0]["id"]};
                 const responseData = {
                     message: 'Connexion réussie',
                     user: user,
@@ -108,6 +109,23 @@ app.post('/connexion', async(req,res)=>{
         console.log(err);
     } 
 })
+
+// ------------------------ Produits ----------------------------
+
+app.get('/produit', async(req,res)=>{
+    let conn;
+
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query("SELECT * FROM produit");
+        res.status(200).json(rows);
+    }
+    catch(err){
+        console.log(err);
+    }
+
+})
+
 
 app.listen(process.env.DB_PORT,()=>{
     console.log("Serveur à l'écoute : \x1b[34mhttp://localhost:3030/\x1b[0m");
