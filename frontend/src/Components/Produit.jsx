@@ -2,7 +2,7 @@ import React, {useEffect,useState} from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 
-export default function Produit() {
+export default function Produit({ estConnecte }) {
     const [listeproduit, setListeProduit] = useState([]);
     const [affichage, setAffichage] = useState(false);
     const [categorie, setCategorie] = useState('');
@@ -30,6 +30,13 @@ export default function Produit() {
                             <p>{produit.description}</p>
                             <p>{produit.prix} €</p>
                         </fieldset>
+
+                        { estConnecte ?
+                            <button>Ajouter au Panier</button>
+                            :
+                            <></>
+                        }
+                        
                     </div>
                 ))
                 : <p> chargement ...</p>   

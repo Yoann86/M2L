@@ -18,8 +18,6 @@ function App() {
 		}
 	};
 
-	
-
 	return (
 		<div className='app'>
 		<Nav estConnecte={estConnecte} updateNavState={updateNavState}></Nav>
@@ -28,7 +26,7 @@ function App() {
 			<Route path="/connexion" element={<Connexion updateNavState={updateNavState}></Connexion>}></Route>
 			<Route path="/inscription" element={<Inscription></Inscription>}></Route>
 			<Route path="/panier" element={<Panier></Panier>}></Route>
-			<Route path="/produit" element={<Produit></Produit>}></Route>
+			<Route path="/produit" element={<Produit estConnecte={estConnecte}></Produit>}></Route>
 		</Routes>
 		</div>
 	)
