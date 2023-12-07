@@ -1,0 +1,20 @@
+.btn-ajoute {
+    background-color: rgb(82, 82, 227);
+    color: white;
+}
+
+.btn-supp {
+    background-color: rgb(200, 60, 50);
+    color: white;
+    border: none;
+}
+
+.btn-valide {
+    background-color: rgb(68, 205, 66);
+    color: white;
+    border: none;
+}
+
+.btn-ajoute:hover,.btn-valide:hover, .btn-supp:hover {
+    filter: brightness(0.8);
+}

@@ -29,11 +29,7 @@ export default function Connexion({ updateNavState }) {
 			);
 
 			if (response.status === 200) {
-				const rd = response.data;
-				localStorage.setItem("email",rd.user["email"]);
-				localStorage.setItem("prenom",rd.user["prenom"]);
-				localStorage.setItem("nom",rd.user["nom"]);
-				localStorage.setItem("id",rd.user["id"]);
+				localStorage.setItem("token",response.data)
 				setMsg("Connexion effecutée");
 				updateNavState(true);
 				navigate("/produit");

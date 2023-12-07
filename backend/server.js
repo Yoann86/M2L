@@ -4,7 +4,11 @@ const app = express();
 const mariadb = require("mariadb");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+// Clé secrète pour signer le JWT
+const secretKey = process.env.JWT_SECRET_KEY;
 
 const pool = mariadb.createPool({
     host: process.env.DB_HOST,
@@ -20,7 +24,24 @@ app.use(cors());
 app.get("/",(req,res)=>{
     res.writeHead(200,{"Content-Type":"text/html"});
     res.end("<h1>Le serveur fonctione ^^</h1>");
-})
+});
+
+function verifierJWT(req, res, next) {
+    const token = req.headers.authorization.substring(7);
+
+    if (!token) {
+        return res.status(401).json({ message: 'Pas de token, accès non autorisé' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, secretKey);
+        req.user = decoded; 
+        console.log(decoded); 
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: 'Token invalide' });
+    }
+}
 
 // ------------------------ CRUD ----------------------------
 
@@ -30,10 +51,11 @@ app.post('/inscription', async(req,res)=>{
         .then(async (hash) => {
             const {prenom,nom,email} = req.body
             conn = await pool.getConnection();
+            const uuid = crypto.randomUUID();
 
             const rows = await conn.query(
-                "INSERT INTO compte (prenom,nom,email,mdp) VALUES (?,?,?,?)",
-                [prenom,nom,email,hash]
+                "INSERT INTO compte (uuid,prenom,nom,email,mdp) VALUES (?,?,?,?,?)",
+                [uuid,prenom,nom,email,hash]
             );
     
             const responseData = {
@@ -44,7 +66,7 @@ app.post('/inscription', async(req,res)=>{
             res.status(200).json(responseData);
         
         }).catch((err)=>console.log(err))
-})
+});
 
 app.post('/inscription/mail', async(req,res)=>{
     let conn;
@@ -70,7 +92,7 @@ app.post('/inscription/mail', async(req,res)=>{
     catch (err){
         console.log(err);
     }
-})
+});
 
 app.post('/connexion', async(req,res)=>{
     let conn;
@@ -86,17 +108,20 @@ app.post('/connexion', async(req,res)=>{
         if (rows.length === 1) {
             const match = await bcrypt.compare(mdp, rows[0]["mdp"]);
             if (match) {
-                const user = {"email":rows[0]["email"],
-                            "prenom":rows[0]["prenom"], 
-                            "nom":rows[0]["nom"],
-                            "id":rows[0]["id"]};
-                const responseData = {
-                    message: 'Connexion réussie',
-                    user: user,
-                };
-                res.status(200).json(responseData);
+                const payload = {
+                    email: rows[0]["email"],
+                    prenom: rows[0]["prenom"], 
+                    nom: rows[0]["nom"],
+                    uuid :rows[0]["uuid"],
+                    role: 'utilisateur',
+                  };
+
+                const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+                console.log(token);
+
+                res.status(200).json(token);
             } else {
-                const responseData = { message: 'Mdp invalide' };
+                const responseData = { message: 'Infos invalides' };
                 res.status(401).json(responseData);
             }
         } 
@@ -108,7 +133,7 @@ app.post('/connexion', async(req,res)=>{
     catch (err) {
         console.log(err);
     } 
-})
+});
 
 // ------------------------ Produits ----------------------------
 
@@ -124,8 +149,135 @@ app.get('/produit', async(req,res)=>{
         console.log(err);
     }
 
-})
+});
 
+app.post('/produit/panier', verifierJWT, async(req,res)=>{ 
+    let conn;
+    const uuidCompte = req.user.uuid;
+    const {uuidProduit,quantite} = req.body;
+
+    try{
+        conn = await pool.getConnection();
+
+        const testProd = await conn.query("SELECT * FROM panier WHERE uuid_produit = ? AND uuid_compte = ? ",[uuidProduit,uuidCompte]);
+
+        if (testProd.length>0){
+            const modif = await conn.query(
+                "UPDATE panier SET quantite = quantite + ? WHERE uuid_produit = ? AND uuid_compte = ?",
+                [quantite,uuidProduit,uuidCompte]
+            );
+            res.status(200).json(modif.affectedRows);
+        }
+        else {
+            const rows = await conn.query(
+                "INSERT INTO panier (uuid_compte,uuid_produit,quantite) VALUES (?,?,?)",
+                [uuidCompte,uuidProduit,quantite]
+            );
+            const responseData = {
+                message: 'Ajout confirmé',
+                updatedRows: rows.affectedRows,
+                };
+    
+            res.status(200).json(responseData);
+        }
+        
+        
+    } 
+    catch(err){
+        console.log(err);
+    }
+});
+
+// ------------------------ Panier -----------------------------
+
+app.get('/panier/:token', verifierJWT, async(req,res)=>{
+    let conn;
+    const uuid = req.user.uuid;
+
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query("SELECT panier.id,produit.uuid,produit.nom,produit.description,produit.prix,panier.quantite FROM panier,produit WHERE uuid_compte= ?  AND uuid_produit = produit.uuid ",[uuid]);
+        res.status(200).json(rows);
+
+    }
+    catch(err){
+        console.log(err);
+    }
+
+});
+
+app.delete('/panier/compte/:token', verifierJWT, async(req,res)=>{
+    let conn;
+    const uuid = req.user.uuid;
+
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query("DELETE FROM panier WHERE uuid_compte = ? ",[uuid]);
+        const responseData = {
+            message: 'suppression confirmée',
+            updatedRows: rows.affectedRows,
+            };
+
+        res.status(200).json(responseData);
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+app.delete('/panier/compte/produit/:idPanier', async(req,res)=>{
+    let conn;
+    const idPanier = parseInt(req.params.idPanier);
+    
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query("DELETE FROM panier WHERE id = ? ",[idPanier]);
+        const responseData = {
+            message: 'suppression confirmée',
+            updatedRows: rows.affectedRows,
+            };
+
+        res.status(200).json(responseData);
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+app.put('/panier/validation/:token', verifierJWT, async(req,res)=>{
+    let conn;
+    const uuid = req.user.uuid;
+    
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query(
+            "SELECT produit.nom FROM panier JOIN produit ON panier.uuid_produit = produit.uuid WHERE panier.uuid_compte = ? AND produit.quantite < panier.quantite",
+            [uuid]
+        );
+
+        if (rows.length>0){
+            const msg = {
+                error: 'Quantité insuffisante en stock',
+                message: 'La quantité demandée dépasse les stocks disponibles dans le magasin.'
+            };
+        
+            res.status(409).json(msg)
+        }
+        
+        else {
+            const updatestock = await conn.query(
+                "UPDATE produit JOIN panier ON produit.uuid = panier.uuid_produit SET produit.quantite = produit.quantite - panier.quantite WHERE uuid_produit = produit.uuid AND uuid_compte = ?",
+                [uuid]
+            )
+            res.status(200).json(updatestock.updatedRows);
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+// ------------------------ Admins -----------------------------
 
 app.listen(process.env.DB_PORT,()=>{
     console.log("Serveur à l'écoute : \x1b[34mhttp://localhost:3030/\x1b[0m");

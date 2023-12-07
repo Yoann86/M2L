@@ -9,7 +9,7 @@ import './App.css';
 import { useState,useEffect } from 'react';
 
 function App() {
-	const [estConnecte,setEstConnecte] = useState(localStorage.getItem("email")!=null);
+	const [estConnecte,setEstConnecte] = useState(localStorage.getItem("token")!=null);
 	
 	const updateNavState = (connecte) => {
 		setEstConnecte(connecte);	

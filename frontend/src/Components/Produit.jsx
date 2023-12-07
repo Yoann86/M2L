@@ -1,6 +1,26 @@
-import React, {useEffect,useState} from 'react'
-import axios from 'axios'
-import { Link } from 'react-router-dom';
+import React, {useEffect,useState} from 'react';
+import axios from 'axios';
+import './Produit.css' ;
+
+async function AjoutePanierProduit(uuidProduit){
+    const token = localStorage.getItem("token");
+    const quantite = 1;
+    const data = {
+        uuidProduit,
+        quantite
+    };
+
+    const axiosInstance = axios.create({
+        baseURL: "http://localhost:3030",
+        headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+        },
+    });
+
+    const ajout = await axiosInstance.post("/produit/panier",JSON.stringify(data));
+
+}
 
 export default function Produit({ estConnecte }) {
     const [listeproduit, setListeProduit] = useState([]);
@@ -24,15 +44,16 @@ export default function Produit({ estConnecte }) {
             <h1>Liste des produits</h1>
             { affichage ?
                 listeproduit.map(produit=>(
-                    <div key={produit.id}>
+                    <div key={produit.uuid}>
                         <fieldset>
                             <p>{produit.nom}</p>
                             <p>{produit.description}</p>
-                            <p>{produit.prix} €</p>
+                            <p>{produit.prix}€</p>
+                            <p>Quantite : {produit.quantite}</p>
                         </fieldset>
 
                         { estConnecte ?
-                            <button>Ajouter au Panier</button>
+                            <button onClick={()=>{AjoutePanierProduit(produit.uuid)}} className='btn-ajoute'>Ajouter au Panier</button>
                             :
                             <></>
                         }
