@@ -7,7 +7,6 @@ const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Clé secrète pour signer le JWT
 const secretKey = process.env.JWT_SECRET_KEY;
 
 const pool = mariadb.createPool({
@@ -36,7 +35,6 @@ function verifierJWT(req, res, next) {
     try {
         const decoded = jwt.verify(token, secretKey);
         req.user = decoded; 
-        console.log(decoded); 
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Token invalide' });
@@ -108,12 +106,18 @@ app.post('/connexion', async(req,res)=>{
         if (rows.length === 1) {
             const match = await bcrypt.compare(mdp, rows[0]["mdp"]);
             if (match) {
+                let role = 'utilisateur';
+
+                if (rows[0]["estadmin"]==1){
+                    role = 'admin'
+                }
+
                 const payload = {
                     email: rows[0]["email"],
                     prenom: rows[0]["prenom"], 
                     nom: rows[0]["nom"],
                     uuid :rows[0]["uuid"],
-                    role: 'utilisateur',
+                    droit: role,
                   };
 
                 const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
@@ -133,6 +137,17 @@ app.post('/connexion', async(req,res)=>{
     catch (err) {
         console.log(err);
     } 
+});
+
+app.get('/autorisation/:token', verifierJWT, async(req,res)=>{
+    const role = req.user.droit;
+
+    if (role=="admin"){
+        res.status(200).json(1);
+    }
+    else {
+        res.status(200).json(0);
+    }
 });
 
 // ------------------------ Produits ----------------------------
@@ -279,6 +294,31 @@ app.put('/panier/validation/:token', verifierJWT, async(req,res)=>{
 
 // ------------------------ Admins -----------------------------
 
+app.get('/dashboard/produits',verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+
+    if (role=='admin'){
+        try{
+            conn = await pool.getConnection();
+            const rows = await conn.query("SELECT * FROM produit");
+            res.status(200).json(rows);
+    
+        }
+        catch(err){
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
+})
+
+// app.get('/testest',verifierJWT, async(req,res)=>{
+
+// })
+
+//
 app.listen(process.env.DB_PORT,()=>{
     console.log("Serveur à l'écoute : \x1b[34mhttp://localhost:3030/\x1b[0m");
 });
