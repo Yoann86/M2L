@@ -12,6 +12,9 @@ import axios from 'axios';
 import './App.css';
 import { useState,useEffect } from 'react';
 
+
+
+
 function App() {
 	const [estConnecte,setEstConnecte] = useState(localStorage.getItem("token")!=null);
 	const [estAdmin, setEstAdmin] = useState(false);
@@ -62,7 +65,7 @@ function App() {
 			<Route path="/produit" element={<Produit estConnecte={estConnecte}></Produit>}></Route>
 			<Route path="/dashboard" element={<Dashboard></Dashboard>}></Route>
 			<Route path="/ajouterproduit" element={<AjouteProduit></AjouteProduit>}></Route>
-			<Route path="/modifierproduit" element={<ModifProduit></ModifProduit>}></Route>
+			<Route path="/modifierproduit/:uuid" element={<ModifProduit></ModifProduit>}></Route>
 		</Routes>
 		</div>
 	)

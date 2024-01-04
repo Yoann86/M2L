@@ -2,6 +2,7 @@ import React from 'react'
 import {useEffect,useState} from 'react';
 import axios from 'axios';
 import { useNavigate} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 export default function ModifProduit() {
     const [nom, setNom] = useState('');
@@ -13,6 +14,7 @@ export default function ModifProduit() {
     const token = localStorage.getItem("token");
 	// const [visibilite, setVisibilite] = useState('');
 	// const navigate = useNavigate();
+	const { uuid } = useParams();
 
     const axiosInstance = axios.create({
         baseURL: "http://localhost:3030",
@@ -24,7 +26,7 @@ export default function ModifProduit() {
 
     const recup = async ()=>{
         try {
-            const res = await axiosInstance.get(`/panier/${token}`);
+            const res = await axiosInstance.get(`/produit/${uuid}`);
             const produitData = res.data[0];
             setProduit(produitData);
             setNom(produitData.nom);
@@ -57,7 +59,7 @@ export default function ModifProduit() {
 		};
 
 		try {
-            const response = await axiosInstance.put(`/dashboard/modifierproduit`,JSON.stringify(data),
+            const response = await axiosInstance.put(`/dashboard/modifierproduit/${uuid}`,JSON.stringify(data),
                 {headers: {'Content-Type': 'application/json', },}
             );
             if (response.status === 200) {

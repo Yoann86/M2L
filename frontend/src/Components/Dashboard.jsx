@@ -64,7 +64,14 @@ export default function Dashboard() {
                     listeproduit.map(produit => (
                         <div key={produit.uuid}>
                             <fieldset>
-                                <p>{produit.nom} - {produit.description} - {produit.prix}€ - {produit.quantite} - {<div className='modif' onClick={() => { navigate("/modifierproduit") }}>modifier</div>} - {<div className='supp' onClick={() => {deleteProduit(produit.uuid)}}>supprimer</div>}</p>
+                                <div>
+                                    {produit.image ? ( // Vérifiez si l'image existe pour ce produit
+                                         <img className="mini-img" src={`http://localhost:3030/${produit.image}`} alt="" />
+                                    ) : (
+                                        <p>Pas d'image disponible</p>
+                                    )}
+                                    {produit.nom} - {produit.description} - {produit.prix}€ - {produit.quantite}{<div className='modif' onClick={() => { navigate(`/modifierproduit/${produit.uuid}`) }}>modifier</div>}{<div className='supp' onClick={() => {deleteProduit(produit.uuid)}}>supprimer</div>}
+                                </div>
                             </fieldset>
                             {/* <button onClick={()=>{supprimePanierProduit(produit.id)}} className='btn-supp'>Supprimer</button> */}
                         </div>

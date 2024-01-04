@@ -35,3 +35,22 @@
 .modif:hover, .supp:hover {
     filter: brightness(0.8);
 }
+
+img {
+    max-width: 300px;
+    max-height: 300px;
+}
+
+.mini-img {
+    width: 30px;
+    height: 30px;
+}
+
+fieldset, fieldset div {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap:30px;
+    justify-content: center;
+}
+
