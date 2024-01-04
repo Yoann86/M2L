@@ -5,6 +5,7 @@ const mariadb = require("mariadb");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 require('dotenv').config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -20,11 +21,30 @@ const pool = mariadb.createPool({
 app.use(express.json());
 app.use(cors());
 
+// Inutile
+
 app.get("/",(req,res)=>{
     res.writeHead(200,{"Content-Type":"text/html"});
     res.end("<h1>Le serveur fonctione ^^</h1>");
 });
 
+// Pour accéder aux uploads
+
+app.use('/uploads', express.static('uploads'));
+
+// ------------------------  Setup de Multer ------------------------
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+  
 function verifierJWT(req, res, next) {
     const token = req.headers.authorization.substring(7);
 
@@ -382,45 +402,119 @@ app.get('/dashboard/utilisateurs',verifierJWT, async(req,res)=>{
     }
 });
 
-app.post('/dashboard/ajouterproduit',verifierJWT, async(req,res)=>{
+// app.post('/dashboard/ajouterproduit',verifierJWT, async(req,res)=>{
+//     let conn;
+//     const role = req.user.droit;
+
+//     // if (role=='admin'){
+//     //     try{
+//     //         const {nom,description,prix,quantite} = req.body
+//     //         conn = await pool.getConnection();
+//     //         const uuid = crypto.randomUUID();
+
+//     //         const rows = await conn.query(
+//     //             "INSERT INTO produit (uuid,nom,description,prix,quantite) VALUES (?,?,?,?,?)",
+//     //             [uuid,nom,description,prix,quantite]
+//     //         );
+    
+//     //         const responseData = {
+//     //             message: 'Ajout réussi',
+//     //             updatedRows: rows.affectedRows,
+//     //             };
+    
+//     //         res.status(200).json(responseData);
+    
+//     //     }
+//     //     catch(err){ 
+//     //         console.log(err);
+//     //     }
+//     // } else {
+//     //     const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+//     //     res.status(403).json(responseData);}
+//     if (role == 'admin') {
+//         try {
+//             // Gestion de l'upload de l'image
+//             console.log(req.body.image)
+//             upload(req, res, async (err) => {
+//                 if (err) {
+//                     console.error('Erreur lors du chargement du fichier :', err);
+//                     return res.status(400).json({ message: 'Erreur lors du chargement du fichier.' });
+//                 }
+
+//                 const { nom, description, prix, quantite } = req.body;
+//                 const image = req.file ? req.file.buffer : null; // Vérifie si un fichier a été uploadé
+//                 console.log(image)
+                
+//                 conn = await pool.getConnection();
+//                 const uuid = crypto.randomUUID();
+
+//                 const rows = await conn.query(
+//                     "INSERT INTO produit (uuid, nom, description, prix, quantite, image) VALUES (?, ?, ?, ?, ?, ?)",
+//                     [uuid, nom, description, prix, quantite, image]
+//                 );
+
+//                 const responseData = {
+//                     message: 'Ajout réussi',
+//                     updatedRows: rows.affectedRows,
+//                 };
+
+//                 res.status(200).json(responseData);
+//             });
+//         } catch (err) {
+//             console.error('Erreur lors de l\'ajout du produit :', err);
+//             res.status(500).json({ message: 'Erreur lors de l\'ajout du produit.' });
+//         }
+//     } else {
+//         res.status(403).json({ message: "Vous n'avez pas les autorisations requises !" });
+//     }
+// });
+
+app.post('/dashboard/ajouterproduit', verifierJWT, upload.single("image"), async (req, res) => {
     let conn;
     const role = req.user.droit;
 
-    if (role=='admin'){
-        try{
-            const {nom,description,prix,quantite} = req.body
-            conn = await pool.getConnection();
-            const uuid = crypto.randomUUID();
+    if (role === 'admin') {
+        try {
+            const { nom, description, prix, quantite } = req.body;
+            const image =  req.file.path; 
+            console.log(image)
 
-            const rows = await conn.query(
-                "INSERT INTO produit (uuid,nom,description,prix,quantite) VALUES (?,?,?,?,?)",
-                [uuid,nom,description,prix,quantite]
-            );
-    
-            const responseData = {
-                message: 'Ajout réussi',
-                updatedRows: rows.affectedRows,
+            try {
+                conn = await pool.getConnection();
+                const uuid = crypto.randomUUID();
+
+                const rows = await conn.query(
+                    "INSERT INTO produit (uuid, nom, description, prix, quantite, image) VALUES (?, ?, ?, ?, ?, ?)",
+                    [uuid, nom, description, prix, quantite, image]
+                );
+
+                const responseData = {
+                    message: 'Ajout réussi',
+                    updatedRows: rows.affectedRows,
                 };
-    
-            res.status(200).json(responseData);
-    
-        }
-        catch(err){ 
-            console.log(err);
+
+                res.status(200).json(responseData);
+            } catch (err) {
+                console.error('Erreur lors de l\'ajout du produit :', err);
+                res.status(500).json({ message: 'Erreur lors de l\'ajout du produit.' });
+            }
+        } catch (err) {
+            console.error('Erreur lors de la gestion du fichier :', err);
+            res.status(500).json({ message: 'Erreur lors de la gestion du fichier.' });
         }
     } else {
-        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
-        res.status(403).json(responseData);
+        res.status(403).json({ message: "Vous n'avez pas les autorisations requises !" });
     }
 });
 
-app.put('/dashboard/modifierproduit', verifierJWT, async(req,res)=>{
+app.put('/dashboard/modifierproduit/:uuid', verifierJWT, async(req,res)=>{
     let conn;
     const role = req.user.droit;
-
+    const uuid = req.params.uuid;
+    console.log(uuid)
     if (role=='admin'){
         try{
-            const {uuid,nom,description,prix,quantite} = req.body
+            const {nom,description,prix,quantite} = req.body
             conn = await pool.getConnection();
 
             const rows = await conn.query(
