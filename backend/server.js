@@ -136,7 +136,7 @@ app.post('/connexion', async(req,res)=>{
     } 
     catch (err) {
         console.log(err);
-    } 
+    }
 });
 
 app.get('/autorisation/:token', verifierJWT, async(req,res)=>{
@@ -164,6 +164,54 @@ app.get('/produit', async(req,res)=>{
         console.log(err);
     }
 
+});
+
+app.get('/produit/:uuid', verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+    const uuid = req.params.uuid;
+
+    if (role=='admin'){
+        try{
+            conn = await pool.getConnection();
+            const rows = await conn.query("SELECT * FROM produit WHERE uuid = ?",[uuid]);
+            res.status(200).json(rows);
+    
+        }
+        catch(err){
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
+});
+
+app.delete('/produit/:uuid', verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+    const uuid = req.params.uuid;
+    
+    console.log(uuid)
+
+    if (role=='admin'){
+        try{
+            conn = await pool.getConnection();
+            const rows = await conn.query("DELETE FROM produit WHERE uuid = ?",[uuid]);
+            const responseData = {
+                message: 'suppression confirmée',
+                updatedRows: rows.affectedRows,
+            };
+            res.status(200).json(responseData);
+    
+        }
+        catch(err){
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
 });
 
 app.post('/produit/panier', verifierJWT, async(req,res)=>{ 
@@ -312,7 +360,90 @@ app.get('/dashboard/produits',verifierJWT, async(req,res)=>{
         const responseData = { message: "Vous n'avez pas les authorisations requises !" };
         res.status(403).json(responseData);
     }
-})
+});
+
+app.get('/dashboard/utilisateurs',verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+
+    if (role=='admin'){
+        try{
+            conn = await pool.getConnection();
+            const rows = await conn.query("SELECT * FROM compte");
+            res.status(200).json(rows);
+    
+        }
+        catch(err){
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
+});
+
+app.post('/dashboard/ajouterproduit',verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+
+    if (role=='admin'){
+        try{
+            const {nom,description,prix,quantite} = req.body
+            conn = await pool.getConnection();
+            const uuid = crypto.randomUUID();
+
+            const rows = await conn.query(
+                "INSERT INTO produit (uuid,nom,description,prix,quantite) VALUES (?,?,?,?,?)",
+                [uuid,nom,description,prix,quantite]
+            );
+    
+            const responseData = {
+                message: 'Ajout réussi',
+                updatedRows: rows.affectedRows,
+                };
+    
+            res.status(200).json(responseData);
+    
+        }
+        catch(err){ 
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
+});
+
+app.put('/dashboard/modifierproduit', verifierJWT, async(req,res)=>{
+    let conn;
+    const role = req.user.droit;
+
+    if (role=='admin'){
+        try{
+            const {uuid,nom,description,prix,quantite} = req.body
+            conn = await pool.getConnection();
+
+            const rows = await conn.query(
+                "UPDATE produit SET nom = ?,description = ?,prix = ?,quantite = ? WHERE uuid = ?",
+                [nom,description,prix,quantite,uuid]
+            );
+    
+            const responseData = {
+                message: 'Modif réussi',
+                updatedRows: rows.affectedRows,
+                };
+    
+            res.status(200).json(responseData);
+    
+        }
+        catch(err){ 
+            console.log(err);
+        }
+    } else {
+        const responseData = { message: "Vous n'avez pas les authorisations requises !" };
+        res.status(403).json(responseData);
+    }
+});
 
 // app.get('/testest',verifierJWT, async(req,res)=>{
 

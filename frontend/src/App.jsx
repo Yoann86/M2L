@@ -5,6 +5,8 @@ import Inscription from './Components/Inscription';
 import Panier from './Components/Panier.jsx';
 import Produit from './Components/Produit.jsx';
 import Dashboard from './Components/Dashboard.jsx';
+import AjouteProduit from './Components/AjouteProduit.jsx';
+import ModifProduit from './Components/ModifProduit.jsx';
 import {Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import './App.css';
@@ -59,6 +61,8 @@ function App() {
 			<Route path="/panier" element={<Panier></Panier>}></Route>
 			<Route path="/produit" element={<Produit estConnecte={estConnecte}></Produit>}></Route>
 			<Route path="/dashboard" element={<Dashboard></Dashboard>}></Route>
+			<Route path="/ajouterproduit" element={<AjouteProduit></AjouteProduit>}></Route>
+			<Route path="/modifierproduit" element={<ModifProduit></ModifProduit>}></Route>
 		</Routes>
 		</div>
 	)

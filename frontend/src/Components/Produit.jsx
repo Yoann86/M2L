@@ -56,10 +56,12 @@ export default function Produit({ estConnecte }) {
                             <button onClick={()=>{AjoutePanierProduit(produit.uuid)}} className='btn-ajoute'>Ajouter au Panier</button>
                             :
                             <></>
-                        }
+                            
+                        }<br /><br />
                         
                     </div>
                 ))
+                
                 : <p> chargement ...</p>   
             }
         </div>

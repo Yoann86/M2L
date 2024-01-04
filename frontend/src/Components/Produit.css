@@ -18,3 +18,20 @@
 .btn-ajoute:hover,.btn-valide:hover, .btn-supp:hover {
     filter: brightness(0.8);
 }
+
+.modif { 
+    color: blue;  
+}
+
+.supp {
+    color: red;
+}
+
+.modif, .supp {
+    cursor: pointer;
+    display: inline;
+}
+
+.modif:hover, .supp:hover {
+    filter: brightness(0.8);
+}

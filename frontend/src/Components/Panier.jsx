@@ -3,7 +3,6 @@ import {useEffect,useState} from 'react';
 import axios from 'axios';
 
 export default function Panier() {
-
     const [listepanier, setListePanier] = useState([]);
     const [affichage, setAffichage] = useState(false);
     const [categorie, setCategorie] = useState('');
