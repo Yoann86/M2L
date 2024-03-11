@@ -59,9 +59,12 @@ export default function AjouteProduit() {
 
     return (
         <div>
+            <div className='barre'>
+                a
+            </div>
             <h1>Ajouter un produit</h1>
             <form encType="multipart/form-data" onSubmit={handleFormSubmit} >
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Nom</label>
 					<input 
 						type="text" 
@@ -69,7 +72,7 @@ export default function AjouteProduit() {
 						onChange={(e)=>{setNom(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Description</label>
 					<input 
 						type="text" 
@@ -77,7 +80,7 @@ export default function AjouteProduit() {
 						onChange={(e)=>{setDescription(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Prix</label>
 					<input 
 						type="text" 
@@ -85,7 +88,7 @@ export default function AjouteProduit() {
 						onChange={(e)=>{setPrix(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Quantite</label>
 					<input 
 						type="text" 
@@ -93,7 +96,7 @@ export default function AjouteProduit() {
 						onChange={(e)=>{setQuantite(e.target.value)}}
 					/>
 				</div>
-                <div>
+                <div className='bloc-form'>
                     <label htmlFor="">Image</label>
                     <input 
                         type="file" 

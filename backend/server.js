@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+
 require('dotenv').config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -44,10 +45,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-  
+
+// -------------------------- Token  ---------------------------
+
 function verifierJWT(req, res, next) {
     const token = req.headers.authorization.substring(7);
-
     if (!token) {
         return res.status(401).json({ message: 'Pas de token, accès non autorisé' });
     }
@@ -141,7 +143,6 @@ app.post('/connexion', async(req,res)=>{
                   };
 
                 const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
-                console.log(token);
 
                 res.status(200).json(token);
             } else {
@@ -211,8 +212,6 @@ app.delete('/produit/:uuid', verifierJWT, async(req,res)=>{
     let conn;
     const role = req.user.droit;
     const uuid = req.params.uuid;
-    
-    console.log(uuid)
 
     if (role=='admin'){
         try{
@@ -348,6 +347,15 @@ app.put('/panier/validation/:token', verifierJWT, async(req,res)=>{
         }
         
         else {
+            const selectPanier = await conn.query("SELECT panier.id,produit.uuid,produit.nom,produit.description,produit.prix,panier.quantite,produit.image,produit.visibilite FROM panier,produit WHERE uuid_compte= ?  AND uuid_produit = produit.uuid ",[uuid]);
+            
+            for(i=0;i<selectPanier.length;i++){
+                const insertPanier = await conn.query(
+                    "INSERT INTO historique_achat (uuid_compte,nom,prix,description,quantite,image,visibilite) VALUES (?,?,?,?,?,?,?)",
+                    [uuid,selectPanier[i]["nom"],selectPanier[i]["prix"],selectPanier[i]["description"],selectPanier[i]["quantite"],selectPanier[i]["image"],selectPanier[i]["visibilite"]]
+                );
+            }
+
             const updatestock = await conn.query(
                 "UPDATE produit JOIN panier ON produit.uuid = panier.uuid_produit SET produit.quantite = produit.quantite - panier.quantite WHERE uuid_produit = produit.uuid AND uuid_compte = ?",
                 [uuid]
@@ -358,6 +366,22 @@ app.put('/panier/validation/:token', verifierJWT, async(req,res)=>{
     catch(err){
         console.log(err);
     }
+});
+
+app.get('/historique/:token', verifierJWT, async(req,res)=>{
+    let conn;
+    const uuid = req.user.uuid;
+
+    try{
+        conn = await pool.getConnection();
+        const rows = await conn.query("SELECT historique_achat.id,historique_achat.nom,historique_achat.prix,historique_achat.quantite,historique_achat.date FROM historique_achat WHERE historique_achat.uuid_compte= ? ",[uuid]);
+        res.status(200).json(rows);
+
+    }
+    catch(err){
+        console.log(err);
+    }
+
 });
 
 // ------------------------ Admins -----------------------------
@@ -402,72 +426,15 @@ app.get('/dashboard/utilisateurs',verifierJWT, async(req,res)=>{
     }
 });
 
-// app.post('/dashboard/ajouterproduit',verifierJWT, async(req,res)=>{
-//     let conn;
-//     const role = req.user.droit;
-
-//     // if (role=='admin'){
-//     //     try{
-//     //         const {nom,description,prix,quantite} = req.body
-//     //         conn = await pool.getConnection();
-//     //         const uuid = crypto.randomUUID();
-
-//     //         const rows = await conn.query(
-//     //             "INSERT INTO produit (uuid,nom,description,prix,quantite) VALUES (?,?,?,?,?)",
-//     //             [uuid,nom,description,prix,quantite]
-//     //         );
-    
-//     //         const responseData = {
-//     //             message: 'Ajout réussi',
-//     //             updatedRows: rows.affectedRows,
-//     //             };
-    
-//     //         res.status(200).json(responseData);
-    
-//     //     }
-//     //     catch(err){ 
-//     //         console.log(err);
-//     //     }
-//     // } else {
-//     //     const responseData = { message: "Vous n'avez pas les authorisations requises !" };
-//     //     res.status(403).json(responseData);}
-//     if (role == 'admin') {
-//         try {
-//             // Gestion de l'upload de l'image
-//             console.log(req.body.image)
-//             upload(req, res, async (err) => {
-//                 if (err) {
-//                     console.error('Erreur lors du chargement du fichier :', err);
-//                     return res.status(400).json({ message: 'Erreur lors du chargement du fichier.' });
-//                 }
-
-//                 const { nom, description, prix, quantite } = req.body;
-//                 const image = req.file ? req.file.buffer : null; // Vérifie si un fichier a été uploadé
-//                 console.log(image)
-                
-//                 conn = await pool.getConnection();
-//                 const uuid = crypto.randomUUID();
-
-//                 const rows = await conn.query(
-//                     "INSERT INTO produit (uuid, nom, description, prix, quantite, image) VALUES (?, ?, ?, ?, ?, ?)",
-//                     [uuid, nom, description, prix, quantite, image]
-//                 );
-
-//                 const responseData = {
-//                     message: 'Ajout réussi',
-//                     updatedRows: rows.affectedRows,
-//                 };
-
-//                 res.status(200).json(responseData);
-//             });
-//         } catch (err) {
-//             console.error('Erreur lors de l\'ajout du produit :', err);
-//             res.status(500).json({ message: 'Erreur lors de l\'ajout du produit.' });
-//         }
-//     } else {
-//         res.status(403).json({ message: "Vous n'avez pas les autorisations requises !" });
-//     }
-// });
+app.delete('/john', async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM compte WHERE nom = 'Doe' AND prenom = 'John'");
+        res.status(200).json(result.affectedRows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Erreur lors de la suppression du compte.' });
+    }
+});
 
 app.post('/dashboard/ajouterproduit', verifierJWT, upload.single("image"), async (req, res) => {
     let conn;
@@ -477,8 +444,7 @@ app.post('/dashboard/ajouterproduit', verifierJWT, upload.single("image"), async
         try {
             const { nom, description, prix, quantite } = req.body;
             const image =  req.file.path; 
-            console.log(image)
-
+            
             try {
                 conn = await pool.getConnection();
                 const uuid = crypto.randomUUID();
@@ -491,6 +457,7 @@ app.post('/dashboard/ajouterproduit', verifierJWT, upload.single("image"), async
                 const responseData = {
                     message: 'Ajout réussi',
                     updatedRows: rows.affectedRows,
+                    uuid: uuid
                 };
 
                 res.status(200).json(responseData);
@@ -511,7 +478,7 @@ app.put('/dashboard/modifierproduit/:uuid', verifierJWT, async(req,res)=>{
     let conn;
     const role = req.user.droit;
     const uuid = req.params.uuid;
-    console.log(uuid)
+
     if (role=='admin'){
         try{
             const {nom,description,prix,quantite} = req.body
@@ -539,11 +506,6 @@ app.put('/dashboard/modifierproduit/:uuid', verifierJWT, async(req,res)=>{
     }
 });
 
-// app.get('/testest',verifierJWT, async(req,res)=>{
-
-// })
-
-//
-app.listen(process.env.DB_PORT,()=>{
+module.exports = app.listen(process.env.DB_PORT,()=>{
     console.log("Serveur à l'écoute : \x1b[34mhttp://localhost:3030/\x1b[0m");
 });

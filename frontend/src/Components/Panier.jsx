@@ -1,10 +1,13 @@
 import React from 'react'
 import {useEffect,useState} from 'react';
 import axios from 'axios';
+import './Panier.css'
 
 export default function Panier() {
     const [listepanier, setListePanier] = useState([]);
     const [affichage, setAffichage] = useState(false);
+    const [histo,setHisto] = useState([]);
+    const [affichageHisto, setAffichageHisto] = useState(false);
     const [categorie, setCategorie] = useState('');
     const token = localStorage.getItem("token");
 
@@ -21,6 +24,14 @@ export default function Panier() {
             .then( res => {
                 setListePanier(res.data);
                 setAffichage(true);
+            })
+    }
+
+    const recupHisto = async ()=>{
+        await axiosInstance.get(`/historique/${token}`)
+            .then( res => {
+                setHisto(res.data);
+                setAffichageHisto(true);
             })
     }
 
@@ -52,28 +63,34 @@ export default function Panier() {
 
     useEffect(()=>{
         recup();
+        recupHisto();
     },[]);
 
         return (
         <div>
+            <div className='barre'>
+				a
+			</div>
             <h1>Votre panier</h1>
-            <button onClick={()=>{supprimePanier();}} className='btn-ajoute'>Tout supprimer</button>
+            
             <br />
             <br />
             { affichage ?
                 listepanier.map(produit=>(
-                    <div key={produit.uuid}>
-                        <fieldset>
-                            <p>{produit.nom}</p>
-                            <p>{produit.description}</p>
+                    <div className='panier-div' key={produit.uuid}>
+                        <fieldset className='panier-fieldset'>
+                            <p><b>{produit.nom}</b></p>
                             <p>{produit.prix}€</p>
-                            <p>Quantite : {produit.quantite}</p>
+                            <p>Quantite : <b>{produit.quantite}</b></p>
+                            <button onClick={()=>{supprimePanierProduit(produit.id)}} className='btn-supp'>Supprimer</button>
                         </fieldset>
-                    <button onClick={()=>{supprimePanierProduit(produit.id)}} className='btn-supp'>Supprimer</button>
+                    
                     </div>
                 ))
                 : <p> chargement ...</p>   
             }
+           <br />
+           <button onClick={()=>{supprimePanier();}} className='btn-ajoute'>Tout supprimer</button>
            <br />
            <br />
            {listepanier.length!=0 ?
@@ -81,6 +98,27 @@ export default function Panier() {
                 :
                 <></>
            }
+           <br />
+           <br />
+           <br />
+           <br />
+
+           { affichageHisto ?
+                histo.map(produit=>(
+                    <div className='histo-div' key={produit.id}>
+                        <fieldset className='histo-fieldset'>
+                            <p><b>{produit.nom}</b></p>
+                            <p>{produit.prix}€</p>
+                            <p>Quantite : <b>{produit.quantite}</b></p>
+                            <p>date : <b>{produit.date}</b></p>
+                        </fieldset>
+                    
+                    </div>
+                ))
+                : <p> chargement ...</p>   
+            }
+            <br />
+            <br />
 
         </div>
     )

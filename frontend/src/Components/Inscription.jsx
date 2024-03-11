@@ -2,6 +2,7 @@ import React from 'react';
 import {useEffect,useState} from 'react';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import './Inscription.css'
 
 export default function Inscription() {
 	const [nom, setNom] = useState('');
@@ -52,8 +53,11 @@ export default function Inscription() {
 
 	return (
 		<div>
+			<div className='barre'>
+				a
+			</div>
 			<form onSubmit={handleFormSubmit} >
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Nom</label>
 					<input 
 						type="text" 
@@ -61,7 +65,7 @@ export default function Inscription() {
 						onChange={(e)=>{setNom(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Prénom</label>
 					<input 
 						type="text" 
@@ -69,7 +73,7 @@ export default function Inscription() {
 						onChange={(e)=>{setPrenom(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">E-mail</label>
 					<input 
 						type="text" 
@@ -77,7 +81,7 @@ export default function Inscription() {
 						onChange={(e)=>{setEmail(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Mdp</label>
 					<input 
 						type="password" 

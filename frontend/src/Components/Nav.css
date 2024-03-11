@@ -8,7 +8,7 @@ ul {
 }
 
 .nav {
-    background-color: rgb(58, 61, 63);
+    background-color: rgb(255, 255, 255);
     width: calc(100% - 1px);
     height: 100px;
     gap: 200px;
@@ -20,5 +20,9 @@ ul {
 }
 
 h3 {
-    color: aliceblue;
+    color: rgb(232, 56, 29);
+}
+
+.nav a {
+    color: black;
 }

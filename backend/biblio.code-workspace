@@ -1,0 +1,53 @@
+{
+	"folders": [
+		{
+			"name": "biblio",
+			"path": "../../../../../../../xampp/htdocs/php/b/biblio"
+		},
+		{
+			"name": "AP1",
+			"path": "../../../../Bureau/SLAM/AP1"
+		},
+		{
+			"name": "axios",
+			"path": "../../../../Bureau/SLAM/Js/axios"
+		},
+		{
+			"name": "DVD store",
+			"path": "../../../../Bureau/SLAM/Js/DVD store"
+		},
+		{
+			"name": "Map app",
+			"path": "../../../../Bureau/SLAM/Map app"
+		},
+		{
+			"name": "Ecommerce",
+			"path": "../../../../../../../xampp/htdocs/php/Ecommerce"
+		},
+		{
+			"name": "vit",
+			"path": "../../../../Bureau/SLAM/React/vit"
+		},
+		{
+			"name": "tp1",
+			"path": "../../../../Bureau/SLAM/React/tp1"
+		},
+		{
+			"name": "AP3",
+			"path": "../.."
+		},
+		{
+			"name": "quizznode",
+			"path": "../../../../Bureau/SLAM/quizznode"
+		},
+		{
+			"path": "../../../../Bureau/SLAM/flutter"
+		},
+		{
+			"path": "../../../../Bureau/SLAM/A trier/portfolio"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "portfolio"
+	}
+}

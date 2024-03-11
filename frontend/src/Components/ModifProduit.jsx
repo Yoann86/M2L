@@ -75,9 +75,12 @@ export default function ModifProduit() {
 
     return (
         <div>
+			<div className='barre'>
+				a
+			</div>
             <h1>Modifier le produit</h1>
             <form onSubmit={handleFormSubmit} >
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Nom</label>
 					<input 
 						type="text" 
@@ -86,7 +89,7 @@ export default function ModifProduit() {
 						onChange={(e)=>{setNom(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Description</label>
 					<input 
 						type="text"
@@ -95,7 +98,7 @@ export default function ModifProduit() {
 						onChange={(e)=>{setDescription(e.target.value);}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Prix</label>
 					<input 
 						type="text" 
@@ -104,7 +107,7 @@ export default function ModifProduit() {
 						onChange={(e)=>{setPrix(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Quantite</label>
 					<input 
 						type="text" 

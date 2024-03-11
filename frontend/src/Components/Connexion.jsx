@@ -43,8 +43,11 @@ export default function Connexion({ updateNavState }) {
 
 	return (
 		<div>
+			<div className='barre'>
+				a
+			</div>
 			<form onSubmit={handleFormSubmit} >
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">E-mail</label>
 					<input 
 						type="text" 
@@ -52,7 +55,7 @@ export default function Connexion({ updateNavState }) {
 						onChange={(e)=>{setEmail(e.target.value)}}
 					/>
 				</div>
-				<div>
+				<div className='bloc-form'>
 					<label htmlFor="">Mdp</label>
 					<input 
 						type="password" 

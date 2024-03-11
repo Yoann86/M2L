@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Dashboard.css'
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -56,28 +57,41 @@ export default function Dashboard() {
 
     return (
         <div>
+            <div className='barre'>
+                a
+            </div>
             <div>
                 <h1>Liste des produits</h1>
                 <br />
                 <br />
-                {affichageProduit ?
-                    listeproduit.map(produit => (
-                        <div key={produit.uuid}>
-                            <fieldset>
-                                <div>
-                                    {produit.image ? ( // Vérifiez si l'image existe pour ce produit
-                                         <img className="mini-img" src={`http://localhost:3030/${produit.image}`} alt="" />
-                                    ) : (
-                                        <p>Pas d'image disponible</p>
-                                    )}
-                                    {produit.nom} - {produit.description} - {produit.prix}€ - {produit.quantite}{<div className='modif' onClick={() => { navigate(`/modifierproduit/${produit.uuid}`) }}>modifier</div>}{<div className='supp' onClick={() => {deleteProduit(produit.uuid)}}>supprimer</div>}
-                                </div>
-                            </fieldset>
-                            {/* <button onClick={()=>{supprimePanierProduit(produit.id)}} className='btn-supp'>Supprimer</button> */}
-                        </div>
-                    ))
-                    : <p> chargement ...</p>
-                }
+                <div className="dashboard-global">
+                    {affichageProduit ?
+                        listeproduit.map(produit => (
+                            <div className="dashboard" key={produit.uuid}>
+                                <fieldset className='dashboard-container'>
+                                    <div className='dashboard-ligne'>
+                                        <div className="dashboard-list">
+                                            {produit.image ? ( // Vérifiez si l'image existe pour ce produit
+                                                <img className="mini-img" src={`http://localhost:3030/${produit.image}`} alt="" />
+                                            ) : (
+                                                <p>Pas d'image disponible</p>
+                                            )}
+                                            <div className="dashboard-item">{produit.nom}</div>
+                                            <div className="dashboard-item">{produit.description}</div>
+                                            <div className="dashboard-item">{produit.prix}€</div>
+                                            <div className="dashboard-item">Quantite: {produit.quantite}</div>
+                                            <div className="dashboard-item">{<div className='modif' onClick={() => { navigate(`/modifierproduit/${produit.uuid}`) }}>Modifier</div>}</div>
+                                            <div className="dashboard-item">{<div className='supp' onClick={() => {deleteProduit(produit.uuid)}}>Supprimer</div>}</div>
+                                        </div>
+                                        {/* {produit.nom} - {produit.description} - {produit.prix}€ - {produit.quantite}{<div className='modif' onClick={() => { navigate(`/modifierproduit/${produit.uuid}`) }}>modifier</div>}{<div className='supp' onClick={() => {deleteProduit(produit.uuid)}}>supprimer</div>} */}
+                                    </div>
+                                </fieldset>
+                                {/* <button onClick={()=>{supprimePanierProduit(produit.id)}} className='btn-supp'>Supprimer</button> */}
+                            </div>
+                        ))
+                        : <p> chargement ...</p>
+                    }
+                </div>
                 <br />
                 <br />
                 <button onClick={() => { navigate("/ajouterproduit"); }} className="btn-ajoute">Ajouter un produit</button>
