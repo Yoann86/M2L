@@ -1,6 +1,6 @@
-/backend/commandes.txt
-/backend/node_modules
-/frontend/node_modules
-/backend/.env
+backend/commandes.txt
+backend/node_modules
+frontend/node_modules
+backend/.env
 
 git rm --cached /backend/.env
