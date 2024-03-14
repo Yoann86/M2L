@@ -127,6 +127,7 @@ app.post('/connexion', async(req,res)=>{
 
         if (rows.length === 1) {
             const match = await bcrypt.compare(mdp, rows[0]["mdp"]);
+            console.log(match)
             if (match) {
                 let role = 'utilisateur';
 
