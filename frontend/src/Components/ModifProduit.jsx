@@ -1,8 +1,9 @@
 import React from 'react'
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useContext} from 'react';
 import axios from 'axios';
 import { useNavigate} from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { ApiContext } from '../main';
 
 export default function ModifProduit() {
     const [nom, setNom] = useState('');
@@ -15,9 +16,10 @@ export default function ModifProduit() {
 	// const [visibilite, setVisibilite] = useState('');
 	// const navigate = useNavigate();
 	const { uuid } = useParams();
+	const { baseURL } = useContext(ApiContext);
 
     const axiosInstance = axios.create({
-        baseURL: "http://localhost:3030",
+        baseURL: baseURL,
         headers: {
             'Authorization': `Bearer ${token}`, 
             'Content-Type': 'application/json', 

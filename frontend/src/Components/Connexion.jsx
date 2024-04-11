@@ -1,7 +1,8 @@
 import React from 'react';
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useContext} from 'react';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import { ApiContext } from '../main';
 
 
 export default function Connexion({ updateNavState }) {
@@ -9,6 +10,7 @@ export default function Connexion({ updateNavState }) {
 	const [mdp, setMdp] = useState('');
 	const [msg, setMsg] = useState('');
 	const navigate = useNavigate();
+	const { baseURL } = useContext(ApiContext);
 
 	const handleFormSubmit = async (e) => {
 		e.preventDefault();
@@ -24,7 +26,7 @@ export default function Connexion({ updateNavState }) {
 		};
 		
 		try {
-			const response = await axios.post(`http://localhost:3030/connexion/`,JSON.stringify(data),
+			const response = await axios.post(`${baseURL}/connexion/`,JSON.stringify(data),
 				{headers: {'Content-Type': 'application/json', },}
 			);
 

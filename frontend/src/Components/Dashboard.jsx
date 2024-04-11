@@ -1,8 +1,9 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState,useContext } from 'react';
 import axios from 'axios';
 import './Dashboard.css'
 import { useNavigate } from 'react-router-dom';
+import { ApiContext } from '../main';
 
 export default function Dashboard() {
     const [listeproduit, setListeProduit] = useState([]);
@@ -12,9 +13,10 @@ export default function Dashboard() {
     const [categorie, setCategorie] = useState('');
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
+    const { baseURL } = useContext(ApiContext);
 
     const axiosInstance = axios.create({
-        baseURL: "http://localhost:3030",
+        baseURL: baseURL,
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -72,7 +74,7 @@ export default function Dashboard() {
                                     <div className='dashboard-ligne'>
                                         <div className="dashboard-list">
                                             {produit.image ? ( // Vérifiez si l'image existe pour ce produit
-                                                <img className="mini-img" src={`http://localhost:3030/${produit.image}`} alt="" />
+                                                <img className="mini-img" src={`${baseURL}/${produit.image}`} alt="" />
                                             ) : (
                                                 <p>Pas d'image disponible</p>
                                             )}

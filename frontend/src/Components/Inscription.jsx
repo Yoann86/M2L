@@ -1,8 +1,9 @@
 import React from 'react';
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useContext} from 'react';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import './Inscription.css'
+import { ApiContext } from '../main';
 
 export default function Inscription() {
 	const [nom, setNom] = useState('');
@@ -11,6 +12,7 @@ export default function Inscription() {
 	const [mdp, setMdp] = useState('');
 	const [msg, setMsg] = useState('');
 	const navigate = useNavigate();
+	const { baseURL } = useContext(ApiContext);
 
 	const handleFormSubmit = async (e) => {
 		e.preventDefault();
@@ -28,12 +30,12 @@ export default function Inscription() {
 		};
 
 		try {
-			const testmail = await axios.post(`http://localhost:3030/inscription/mail`,JSON.stringify(data), //
+			const testmail = await axios.post(`${baseURL}/inscription/mail`,JSON.stringify(data), //
 				{headers: {'Content-Type': 'application/json', },}
 			)
 			if (testmail.status === 200) {
 				try {
-					const response = await axios.post(`http://localhost:3030/inscription/`,JSON.stringify(data),
+					const response = await axios.post(`${baseURL}/inscription/`,JSON.stringify(data),
 						{headers: {'Content-Type': 'application/json', },}
 					);
 					if (response.status === 200) {

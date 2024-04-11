@@ -1,7 +1,8 @@
 import React from 'react'
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useContext} from 'react';
 import axios from 'axios';
 import './Panier.css'
+import { ApiContext } from '../main';
 
 export default function Panier() {
     const [listepanier, setListePanier] = useState([]);
@@ -10,9 +11,10 @@ export default function Panier() {
     const [affichageHisto, setAffichageHisto] = useState(false);
     const [categorie, setCategorie] = useState('');
     const token = localStorage.getItem("token");
+    const { baseURL } = useContext(ApiContext);
 
     const axiosInstance = axios.create({
-        baseURL: "http://localhost:3030",
+        baseURL: baseURL,
         headers: {
             'Authorization': `Bearer ${token}`, 
             'Content-Type': 'application/json', 

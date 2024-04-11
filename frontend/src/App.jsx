@@ -10,14 +10,13 @@ import ModifProduit from './Components/ModifProduit.jsx';
 import {Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import './App.css';
-import { useState,useEffect } from 'react';
-
-
-
+import { useState,useEffect,useContext } from 'react';
+import { ApiContext } from './main';
 
 function App() {
 	const [estConnecte,setEstConnecte] = useState(localStorage.getItem("token")!=null);
 	const [estAdmin, setEstAdmin] = useState(false);
+	const { baseURL } = useContext(ApiContext);
 
 	useEffect(() => {
 		const testAdmin = async () => {
@@ -25,7 +24,7 @@ function App() {
 	
 		  if (token) {
 			const axiosInstance = axios.create({
-			  baseURL: 'http://localhost:3030',
+			  baseURL: baseURL,
 			  headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',

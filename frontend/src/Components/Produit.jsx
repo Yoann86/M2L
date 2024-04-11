@@ -1,9 +1,11 @@
-import React, {useEffect,useState} from 'react';
+import React, {useEffect,useState,useContext} from 'react';
 import axios from 'axios';
 import './Produit.css' ;
+import { ApiContext } from '../main';
 
 async function AjoutePanierProduit(uuid) {
     const token = localStorage.getItem("token");
+    const { baseURL } = useContext(ApiContext);
   
     const axiosInstance = axios.create({
         baseURL: "http://localhost:3030",
@@ -28,10 +30,11 @@ async function AjoutePanierProduit(uuid) {
 export default function Produit({ estConnecte }) {
     const [listeproduit, setListeProduit] = useState([]);
     const [affichage, setAffichage] = useState(false);
+    const { baseURL } = useContext(ApiContext);
 
     const recup = async () => {
         try {
-            const res = await axios.get("http://localhost:3030/produit");
+            const res = await axios.get(`${baseURL}/produit`);
             setListeProduit(res.data);
             setAffichage(true);
         } catch (error) {
@@ -57,7 +60,7 @@ export default function Produit({ estConnecte }) {
                         <div className="prod" key={produit.uuid}>
                             <fieldset>
                                 {produit.image ? ( // Vérifiez si l'image existe pour ce produit
-                                    <img src={`http://localhost:3030/${produit.image}`} alt="" />
+                                    <img src={`${baseURL}/${produit.image}`} alt="" />
                                 ) : (
                                     <p>Pas d'image disponible</p>
                                 )}

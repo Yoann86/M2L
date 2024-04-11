@@ -1,6 +1,7 @@
 import React from 'react'
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useContext} from 'react';
 import axios from 'axios';
+import { ApiContext } from '../main';
 
 export default function AjouteProduit() {
     const [nom, setNom] = useState('');
@@ -12,9 +13,10 @@ export default function AjouteProduit() {
     const token = localStorage.getItem("token");
 	// const [visibilite, setVisibilite] = useState('');
 	// const navigate = useNavigate();
+    const { baseURL } = useContext(ApiContext);
 
     const axiosInstance = axios.create({
-        baseURL: "http://localhost:3030",
+        baseURL: baseURL,
         headers: {
             'Authorization': `Bearer ${token}`, 
             'Content-Type': 'application/json', 
