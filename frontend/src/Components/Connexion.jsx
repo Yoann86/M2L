@@ -12,7 +12,7 @@ export default function Connexion({ updateNavState }) {
 
 	const handleFormSubmit = async (e) => {
 		e.preventDefault();
-
+		console.log()
 		if (!email || !mdp) {
 			setMsg("Veuillez remplir tous les champs.");
 			return; 
